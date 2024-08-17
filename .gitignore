@@ -1,0 +1,5 @@
+workshop01/__pycache__
+# Elastic Beanstalk Files
+workshop01/.elasticbeanstalk/*
+workshop01/!.elasticbeanstalk/*.cfg.yml
+workshop01/!.elasticbeanstalk/*.global.yml
