@@ -1,0 +1,19 @@
+FROM python:3
+WORKDIR /dov_bear
+## Build 
+COPY main.py .
+COPY requirements.txt .
+COPY run.sh .
+COPY utils.py .
+COPY public public
+COPY templates templates
+
+##Run
+RUN pip install -r requirements.txt
+ENV PORT=3000
+ENV INSTANCE_NAME=''
+ENV INSTANCE_HASH=''
+
+EXPOSE ${PORT}
+RUN echo ${PORT}
+ENTRYPOINT python main.py --port=${PORT} --name=${INSTANCE_NAME} --hash=${INSTANCE_HASH}
