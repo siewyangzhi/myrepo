@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: codeserver-ingress
+  namespace: codeserver
+  labels:
+    app: codeserver
+    name: codeserver-ing
+spec:
+  ingressClassName: nginx ## Best practise to specify as we may have > 1 ingress controller
+  rules: ## Routing rules for the provisioned Ingress Controller
+    - host: codeserver-137.184.250.184.nip.io
+      http: ## The LB provisioned by the ingress controller opens port 80 and 443.
+        paths: 
+        - path: /   ### Any request coming in which is url/ would match this rule.
+          pathType: Prefix
+          backend: 
+            service: 
+              name: codeserver-svc
+              port: 
+                number: 8443 ## Can use name or number. Name is provided the name was declared on top.

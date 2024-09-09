@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: codeserver-deploy
+  namespace: codeserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: codeserver
+      name: codeserver-deploy
+  template:
+    metadata:
+      labels:
+        app: codeserver
+        name: codeserver-deploy
+    spec:
+      volumes: 
+      - name: codeserver-vol
+        persistentVolumeClaim:
+          claimName: codeserver-pvc
+      containers:
+      - name: codeserver-container
+        image: linuxserver/code-server:4.92.2
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: codeserver-config
+        - secretRef:
+            name: codeserver-secret
+        ports:
+          - name: app-port
+            containerPort: 8443
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 200m
+            memory: 1Gi #Increased memory as 256Mi causes OOM errors.
+        volumeMounts:
+          - name: codeserver-vol
+            mountPath: /config/workspace

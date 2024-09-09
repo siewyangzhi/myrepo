@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: 
+  name: minio-sts
+  namespace: minio-ns
+spec:
+  replicas: 4
+  serviceName: minio-svc-headless
+  selector:
+    matchLabels:
+      app: minio
+      name: minio-po
+  volumeClaimTemplates:
+  - metadata:
+      name: data-vol
+    spec:
+      accessModes: [ ReadWriteOnce ]
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: do-block-storage
+  template:
+    metadata:
+      labels:
+        app: minio
+        name: minio-po
+    spec:
+      securityContext:
+        fsGroup: 1001
+      containers:
+      - name: minio-container
+        image: bitnami/minio:2024.8.29
+        envFrom:
+        - configMapRef:
+            name: minio-config
+        - secretRef:
+            name: minio-secret
+        ports: 
+        - name: server
+          containerPort: 9000
+        - name: web-console
+          containerPort: 9090
+        volumeMounts:
+        - name: data-vol
+          mountPath: /data
+        livenessProbe:
+         httpGet:
+           path: /minio/health/live
+           port: 9000
+         initialDelaySeconds: 90
+         periodSeconds: 30
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi

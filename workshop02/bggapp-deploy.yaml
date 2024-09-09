@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bggapp-deploy
+  namespace: bggns
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: bggapp
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0      
+  template:
+    metadata:
+      labels:
+        name: bggapp
+    spec:
+      containers:
+      - name: bgg-backend
+        image: stackupiss/bgg-backend:v2
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: BGG_DB_USER
+            valueFrom:
+              configMapKeyRef:
+                key: bgg_db_user
+                name: bggdb-config-map
+          - name: BGG_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: bgg_db_password
+                name: bggdb-secret
+          - name: BGG_DB_HOST
+            valueFrom:
+              configMapKeyRef:
+                key: bgg_db_host
+                name: bggdb-config-map
+        ports:
+          - name: app-port
+            containerPort: 3000
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: app-port
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: app-port

@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minio-ingress
+  namespace: minio-ns
+  labels:
+    app: minio
+    name: minio-ing
+  annotations:
+      nginx.ingress.kubernetes.io/limit-rps: "10"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: data-137.184.250.184.nip.io
+      http: 
+        paths: 
+        - path: /
+          pathType: Prefix
+          backend: 
+            service: 
+              name: minio-svc-headless
+              port: 
+                number: 9000
+    - host: console-137.184.250.184.nip.io
+      http:
+        paths: 
+        - path: /
+          pathType: Prefix
+          backend: 
+            service: 
+              name: minio-svc-headless
+              port: 
+                number: 9090
